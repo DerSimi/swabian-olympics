@@ -1,6 +1,6 @@
 # Reinforcement Learning Tournament WT25/26 University of Tübingen
 
-This repository contains the code for the Laser Hockey Tournament of the University of Tübingen.
+This repository contains the code for the Laser Hockey Tournament of the University of Tübingen. You can find the report [here](report/report.pdf)
 <img width="585" height="825" alt="image" src="https://github.com/user-attachments/assets/97d81433-f0ec-42f2-8974-a9a679e6ddd1" />
 
 # For Reviewers
