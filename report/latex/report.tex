@@ -1,0 +1,273 @@
+\documentclass[11pt]{article}
+
+\usepackage{times}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{graphics}
+\usepackage{color}
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}       % blackboard math symbols
+\usepackage{amssymb}
+\usepackage{epigraph} 
+
+\usepackage{lipsum}
+
+\usepackage{geometry}
+\geometry{left=2.8cm,right=2.8cm,top=2.6cm,bottom=2.6cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage{hyperref}% should be the last package you include
+
+% Pls install
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs}
+
+\newcommand{\theteam}{}
+\newcommand{\team}[1]{\def\theteam{#1}}
+
+
+\fancyhead[L]{\theteam}
+\fancyhead[R]{\thepage}
+\cfoot{}
+
+\setlength{\parindent}{0pt}
+
+\team{Swabian-Olympics: Niklas Ehrenfried, Simon Rappenecker, Fabian Holzwarth}
+\title{RL-Course 2025/26: Final Project Report}
+\author{\theteam}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+    \epigraph{This is the story on how we became the greatest hockey players in the whole course (maybe)}
+         {\textit{us \\ (before the tournament)}}
+    Reinforcement learning is a branch of machine learning in which an agent learns to take actions to maximize its cumulative reward in an environment.  One of the most well-known examples of reinforcement learning is AlphaGo \cite{alphago}, groundbreaking research by Google DeepMind that was the first to defeat a professional Go player. \\ \\
+    %
+    This project investigates reinforcement learning in a simple, physics-based two player environment called Hockey-Game. The task models a rudimentary competitive game in which two players face each other in a rectangular arena. Each of them defending their own goal while attempting to score against the opponent by shooting the puck. The players are confined to their own half of the field and cannot cross the vertical center line. At every time step, a player can apply a movement and a rotation force to their agent, as well as kicking the puck if it currently is held. If the puck is not kicked after 15 steps, this action is forced automatically. Whoever scores the first goal is declared the winner of the game. If no goal was scored after 250 steps, the game will end in a draw. \\ \\
+    %
+    In this continuous and dynamic environment, the agent receives a complete observation of the game and selects actions for its player every step. By default, rewards are granted mostly on goals. Some smaller metrics are already rewarded during the gameplay and encourage puck possession and motion towards the opponent's goal. Due to the fully observable environment, this can be extended for custom requirements. \\ \\
+    %
+    On the following pages, we will present our agent implementations to learn a beneficial policy to navigate this game and try to achieve mastery over the opponent strategies:
+    \begin{itemize}
+        \item \textbf{N-PACT} (\textbf{N}-step, \textbf{P}rioritized, \textbf{A}uxiliary, \textbf{C}EM, \textbf{T}QC) - Niklas
+        \item \textbf{Quantile Soft Actor-Critic (SAC)} - Simon
+        \item \textbf{Model Based Soft Actor-Critic (MBPO + SAC)} - Fabian
+    \end{itemize}
+    
+
+\newpage
+\section{N-PACT (N-step, Prioritized, Auxiliary, CEM, TQC)}\label{sec:npact}
+
+\subsection{Methods and Implementation Details}
+% Introduction to your specific agent and its core philosophy goes here.
+
+\subsubsection{Base Algorithm: Truncated Quantile Critics (TQC)}
+% Explain the distributional RL aspect and how truncating quantiles prevents overestimation bias.
+The core of the agent relies on Truncated Quantile Critics (TQC), a distributional reinforcement learning algorithm. Instead of estimating a single expected return, TQC estimates the distribution of the return. 
+\begin{equation}
+    % Placeholder for your TQC objective function / Quantile Huber Loss
+    L(\theta) = ... 
+\end{equation}
+
+\subsubsection{N-Step Returns}
+% Describe how multi-step bootstrapping accelerates reward propagation.
+To improve sample efficiency and accelerate the propagation of delayed rewards, we incorporate N-step returns into the value estimation.
+\begin{equation}
+    % Placeholder for N-step return formula
+    R^{(n)}_t = \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n \max_a Q(s_{t+n}, a)
+\end{equation}
+
+\subsubsection{Prioritized Experience Replay (PER)}
+% Detail your prioritization mechanism and importance-sampling correction.
+\begin{equation}
+    % Placeholder for PER priority calculation or IS weights
+    w_j = \left( \frac{1}{N \cdot P(j)} \right)^\beta
+\end{equation}
+
+\subsubsection{Auxiliary Tasks}
+% Outline the specific auxiliary objectives added to your network.
+\begin{equation}
+    % Placeholder for Auxiliary task loss formulas
+    L_{aux} = ...
+\end{equation}
+
+\subsubsection{Cross-Entropy Method (CEM) Planning}
+% Explain the integration of the CEM planner for action selection or Q-value maximization.
+\begin{equation}
+    % Placeholder for CEM distribution update math
+    \mu_{new} = ... , \quad \sigma_{new} = ...
+\end{equation}
+
+\newpage
+\subsection{Experimental Evaluation}
+
+\subsubsection{Simple Environment Validation}
+% Briefly show the initial validation on tasks like Pendulum-v0 or LunarLander-v2.
+% Insert a figure here demonstrating base learning.
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{figures/simple_env_plot.png}
+    \caption{Training performance of N-TQC-PER-Aux-CEM on simple gymnasium environments.}
+    \label{fig:simple_env}
+\end{figure}
+
+\subsubsection{Feature Ablation Study}
+% Compare the full N-TQC-PER-Aux-CEM against simpler variants (e.g., Base TQC vs. TQC+PER).
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{figures/ablation_plot.png}
+    \caption{Ablation study demonstrating the performance gain from each added feature.}
+    \label{fig:ablation}
+\end{figure}
+
+\subsubsection{Performance Against Basic Opponents}
+% Document performance and win rate against the weak and strong basic opponents in normal game mode.
+% This is mandatory for the grading criteria!
+
+\subsubsection{Self-Play and Training Dynamics}
+% Provide training curves (reward/win-rate over time) and summarize key hyperparameters.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Hyperparameter} & \textbf{Value} \\
+        \hline
+        N-step size & ... \\
+        CEM iterations & ... \\
+        PER $\alpha$ & ... \\
+        PER $\beta$ & ... \\
+        \hline
+    \end{tabular}
+    \caption{Key hyperparameters used during the final training phase.}
+    \label{tab:hyperparams}
+\end{table}
+
+
+%
+\newpage
+\section{Quantile-SAC}\label{sec:SAC}
+    Here write a short introduction
+\subsection{Soft-Actor Critic}
+    Descibe SAC and quantile critic in more detail
+\subsection{Quantile Critic}
+    Describe your non trivial modification
+\subsection{Self-Play Strategy}
+    Describe your non trivial modification
+% \newpage
+\subsection{Experiments}
+\subsubsection{Network Architecture and Normalization}
+Different hidden layer configurations for both actor and critic were explored, resulting in the final configuration 512-512-512.
+Note that higher capacity networks increase convergence speed and reduce the variance across random seeds (Fig.~\ref{fig:sac_net}).
+However, when training against the strong opponent, observation normalization is necessary to stabilize training (Fig.~\ref{fig:obs_norm}). \\ \\
+%
+Training against the weak or the strong opponent takes 20 minutes and results in a win rate of > 99\%.
+    \begin{figure}[H]
+            \centering
+            \begin{subfigure}[b]{0.48\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{simon/sac_paper_net_strong.pdf}
+                \caption{}
+                \label{fig:sac_net}
+            \end{subfigure}
+            \begin{subfigure}[b]{0.48\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{simon/obs_norm_compar.pdf}
+                \caption{}
+                \label{fig:obs_norm}
+            \end{subfigure}
+            \caption{\textbf{Network Architecture and Observation Normalization.} \textbf{(a)} Training against strong with varying critic and actor architectures. \textbf{(b)} Training against weak and strong with and without observation normalization. Both plots show the mean and 95\% CI over three runs.}
+            \label{fig:combined_results}
+    \end{figure}
+\subsubsection{Pink Noise}
+By default, the Soft Actor-Critic uses Gaussian noise to sample actions in the environment.
+This noise can be replaced by other noise processes, for example with Pink Noise \cite{pink_noise}.
+However, this consistently resulted in slightly reduced convergence speed during training and was therefore not considered further.
+\subsubsection{Quantile Critic and Self-Play}
+The Quantile-SAC converges slightly slower than the default SAC, but only when training against a single opponent with a fixed strategy (e.g., weak or strong).
+However, in a self-play setting involving a pool of opponents, the default SAC struggles to find a robust strategy.
+Q-SAC on the other hand, with a critic aware of the distribution proves beneficial and stabilizes the training.
+Notably, the Q-SAC finds a counter-strategy considerably faster.
+This allows it to reach the performance threshold required to add a new agent to the self-play pool sooner,
+resulting in more experience and therefore better performance in the same amount of time (Tab.~\ref{fig:ablation_table}).
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+            \centering
+            \renewcommand{\arraystretch}{1.3} 
+            \begin{tabular}{lccc}
+                \toprule
+                Win Rates & Weak$^*$ & Strong$^*$ & SAC$^{**}$ \\
+                \midrule
+                Q-SAC & 100\% & 98.3\% & 75.33\% \\
+                SAC & 97.6\% & 80.6\% & -- \\
+                \bottomrule
+                \addlinespace[1ex] 
+                \multicolumn{4}{l}{\footnotesize $^*$ Mean over 3 trained models, 100 games per model} \\
+                \multicolumn{4}{l}{\footnotesize $^{**}$ Mean over 900 games (100 games for each model pair)} \\
+            \end{tabular}
+            \caption{}
+            \label{fig:ablation_table}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{simon/obs_norm_compar.pdf}
+            \caption{}
+            \label{fig:selfplay_training}
+        \end{subfigure}
+        \caption{\textbf{Self-Play Ablation and Training Run.} \textbf{(a)} Win rates after 1M steps of self-play comparing Q-SAC and default SAC. \textbf{(b)} Training over 20M steps with Q-SAC.}
+        \label{fig:selfplay}
+    \end{figure}
+The final agent used in the competition was trained over 20M steps. To ensure a challenging environment, the basic opponent pool contained checkpoints from team members and previous runs.
+During its journey to perfection, it accumulated over 170 opponents. To fully exploit this diversity, the pool was frozen at 19M steps. 
+This allowed the model to focus entirely on optimizing its policy against a static, yet diverse set of opponents. \\ \\
+%
+In the competition, the Q-SAC reached ... 
+%
+%
+\newpage
+\section{MBPO + SAC}\label{sec:MBPO_SAC}
+    Even with the very simple environment of the hockey game, we can try to improve sample efficiency further with a combination of a Soft-Actor-Critic (SAC) agent with model based policy optimization (MBPO). The SAC consists of multiple neural networks: \begin{enumerate}
+        \item Policy Network (Actor) $\pi_\theta(a \mid s)$ \\
+            For learning the actual policy we use a neural network with Gaussian policy and tanh squashing. Given the current observation, we receive the action of our agent.
+            \begin{align}
+                \mathcal{L}_\pi = \mathbb{E}\left[\alpha \cdot log(\pi(a \mid s)) - min_i(Q_i(s,a))\right]
+            \end{align}
+        \item Q-Networks (Two Critics) $Q_1$ and $Q_2$ \\
+            Two independent neural networks are used for estimating the soft action-value function $Q(s,a)$. By the principle of double Q-learning, we can reduce overestimation bias and provide gradients to train the policy.
+            \begin{align}
+                y &= r + \gamma \left(min_i (Q_{target, i})(s',a') - \alpha \cdot log(\pi(a' \mid s'))\right) \\
+                \mathcal{L}_{Q_i} &= \mathbb{E}\left[(Q_i(s,a) - y)^2\right]
+            \end{align}
+        \item Entropy temperature $\alpha$ \\
+            To balance between maximizing reward and encouraging exploration, another network is used that learns and adapts a scalable parameter for the desired policy entropy $\mathcal{H}_{target}$ (Hyperparameter = $-dim(a)$ \cite{haarnoja2019softactorcriticalgorithmsapplications}).
+            \begin{align}
+                \mathcal{L}_\alpha = \mathbb{E}\left[- log(\alpha \cdot (log(\pi(a \mid s) + \mathcal{H}_target) )) \right]
+            \end{align}
+    \end{enumerate} 
+    This alone already learns the behavior of the game and training opponents quite well. To improve the learning process and also introduce some stochastic variety, this SAC Agent is wrapped by the MBPO construct using \begin{enumerate}
+        \item A dynamic world model \\
+            By trying to learn how the world steps based on an observation and an action, we create this feedforward neural network. This gives us an approximation of the expected next state and reward for any given combination of state and action $(s,a) \rightarrow (\hat{s}',\hat{r})$. By using this, we can generate more transitions without stepping the actual environment and exploring actions safely. By chaining the generated states, we can also estimate more into the future with increasing uncertainty.
+            \begin{align}
+                \mathcal{L}_{worldmodel} = \mathbb{E}\left[ mse(\hat{s}',s') + \lambda \cdot mse(\hat{r},r)\right]
+            \end{align}
+        \item A replay buffer \\
+            To train the world model continuously and keep using some real world data for the SAC training, the experienced transitions $(s,a,r,s',d)$ are stored in a buffer. Training data can now be generated by using random samples from this buffer and extending them with imagined next states from the world model.
+    \end{enumerate}
+
+
+\newpage
+\section{Comparison}
+Write something here
+
+\newpage
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
