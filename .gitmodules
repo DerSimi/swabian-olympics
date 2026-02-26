@@ -1,0 +1,9 @@
+[submodule "comprl-client"]
+	path = comprl-client
+	url = https://github.com/martius-lab/comprl-hockey-agent
+[submodule "hockey-env"]
+	path = hockey-env
+	url = https://github.com/martius-lab/hockey-env
+[submodule "pink-noise-rl"]
+	path = pink-noise-rl
+	url = https://github.com/martius-lab/pink-noise-rl
