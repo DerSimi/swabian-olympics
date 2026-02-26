@@ -25,7 +25,7 @@
 \usepackage{float}
 \usepackage{caption}
 \usepackage{booktabs}
-
+\usepackage{wrapfig}
 \newcommand{\theteam}{}
 \newcommand{\team}[1]{\def\theteam{#1}}
 
@@ -36,7 +36,7 @@
 
 \setlength{\parindent}{0pt}
 
-\team{Swabian-Olympics: Niklas Ehrenfried, Simon Rappenecker, Fabian Holzwarth}
+\team{SwabianOlympics: Simon Rappenecker, Niklas Ehrenfried, Fabian Holzwarth}
 \title{RL-Course 2025/26: Final Project Report}
 \author{\theteam}
 
@@ -45,7 +45,7 @@
 
 \section{Introduction}\label{sec:intro}
 
-    \epigraph{This is the story on how we became the greatest hockey players in the whole course (maybe)}
+    \epigraph{This is the story on how we became the greatest hockey players in the whole course}
          {\textit{us \\ (before the tournament)}}
     Reinforcement learning is a branch of machine learning in which an agent learns to take actions to maximize its cumulative reward in an environment.  One of the most well-known examples of reinforcement learning is AlphaGo \cite{alphago}, groundbreaking research by Google DeepMind that was the first to defeat a professional Go player. \\ \\
     %
@@ -55,129 +55,70 @@
     %
     On the following pages, we will present our agent implementations to learn a beneficial policy to navigate this game and try to achieve mastery over the opponent strategies:
     \begin{itemize}
+        \item \textbf{Quantile Soft Actor-Critic (Q-SAC)} - Simon
         \item \textbf{N-PACT} (\textbf{N}-step, \textbf{P}rioritized, \textbf{A}uxiliary, \textbf{C}EM, \textbf{T}QC) - Niklas
-        \item \textbf{Quantile Soft Actor-Critic (SAC)} - Simon
         \item \textbf{Model Based Soft Actor-Critic (MBPO + SAC)} - Fabian
     \end{itemize}
     
 
-\newpage
-\section{N-PACT (N-step, Prioritized, Auxiliary, CEM, TQC)}\label{sec:npact}
-
-\subsection{Methods and Implementation Details}
-% Introduction to your specific agent and its core philosophy goes here.
-
-\subsubsection{Base Algorithm: Truncated Quantile Critics (TQC)}
-% Explain the distributional RL aspect and how truncating quantiles prevents overestimation bias.
-The core of the agent relies on Truncated Quantile Critics (TQC), a distributional reinforcement learning algorithm. Instead of estimating a single expected return, TQC estimates the distribution of the return. 
-\begin{equation}
-    % Placeholder for your TQC objective function / Quantile Huber Loss
-    L(\theta) = ... 
-\end{equation}
-
-\subsubsection{N-Step Returns}
-% Describe how multi-step bootstrapping accelerates reward propagation.
-To improve sample efficiency and accelerate the propagation of delayed rewards, we incorporate N-step returns into the value estimation.
-\begin{equation}
-    % Placeholder for N-step return formula
-    R^{(n)}_t = \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n \max_a Q(s_{t+n}, a)
-\end{equation}
-
-\subsubsection{Prioritized Experience Replay (PER)}
-% Detail your prioritization mechanism and importance-sampling correction.
-\begin{equation}
-    % Placeholder for PER priority calculation or IS weights
-    w_j = \left( \frac{1}{N \cdot P(j)} \right)^\beta
-\end{equation}
-
-\subsubsection{Auxiliary Tasks}
-% Outline the specific auxiliary objectives added to your network.
-\begin{equation}
-    % Placeholder for Auxiliary task loss formulas
-    L_{aux} = ...
-\end{equation}
-
-\subsubsection{Cross-Entropy Method (CEM) Planning}
-% Explain the integration of the CEM planner for action selection or Q-value maximization.
-\begin{equation}
-    % Placeholder for CEM distribution update math
-    \mu_{new} = ... , \quad \sigma_{new} = ...
-\end{equation}
-
-\newpage
-\subsection{Experimental Evaluation}
-
-\subsubsection{Simple Environment Validation}
-% Briefly show the initial validation on tasks like Pendulum-v0 or LunarLander-v2.
-% Insert a figure here demonstrating base learning.
-\begin{figure}[h]
-    \centering
-    % \includegraphics[width=0.8\textwidth]{figures/simple_env_plot.png}
-    \caption{Training performance of N-TQC-PER-Aux-CEM on simple gymnasium environments.}
-    \label{fig:simple_env}
-\end{figure}
-
-\subsubsection{Feature Ablation Study}
-% Compare the full N-TQC-PER-Aux-CEM against simpler variants (e.g., Base TQC vs. TQC+PER).
-\begin{figure}[h]
-    \centering
-    % \includegraphics[width=0.8\textwidth]{figures/ablation_plot.png}
-    \caption{Ablation study demonstrating the performance gain from each added feature.}
-    \label{fig:ablation}
-\end{figure}
-
-\subsubsection{Performance Against Basic Opponents}
-% Document performance and win rate against the weak and strong basic opponents in normal game mode.
-% This is mandatory for the grading criteria!
-
-\subsubsection{Self-Play and Training Dynamics}
-% Provide training curves (reward/win-rate over time) and summarize key hyperparameters.
-\begin{table}[h]
-    \centering
-    \begin{tabular}{|c|c|}
-        \hline
-        \textbf{Hyperparameter} & \textbf{Value} \\
-        \hline
-        N-step size & ... \\
-        CEM iterations & ... \\
-        PER $\alpha$ & ... \\
-        PER $\beta$ & ... \\
-        \hline
-    \end{tabular}
-    \caption{Key hyperparameters used during the final training phase.}
-    \label{tab:hyperparams}
-\end{table}
-
-
+%
 %
 \newpage
-\section{Quantile-SAC}\label{sec:SAC}
-    Here write a short introduction
-\subsection{Soft-Actor Critic}
-    Descibe SAC and quantile critic in more detail
+\section{Q-SAC}\label{sec:SAC}
+    The Soft Actor-Critic, proposed by Haarnoja et al. \cite{sac_main, sac_helper}, is a popular off-policy reinforcement learning algorithm, which attempted to overcome the limitations of DDPG \cite{ddpg}. It extends the actor-critic architecture to a stochastic, entropy-based policy, while relying on two critics to mitigate critic overestimation. However, this still proves unstable in a self-play setting and is therefore replaced by a quantile critic, leading to Q-SAC.
+\subsection{Soft Actor-Critic}
+    The core principle of every SAC is entropy regularization, where the optimal policy is given by \cite{sac_main, spinningup}:
+    \begin{equation}
+        \pi^* = \arg \max_{\pi} \underset{\tau \sim \pi}{\mathbb{E}}{ \sum_{t=0}^{\infty} \gamma^t \left( R(s_t, a_t) + \alpha H(\pi(\cdot|s_t)) \right)}
+    \end{equation}
+    $R$ is the reward for states and actions in the current trajectory, $\alpha$ is the temperature term \cite{sac_helper} and $H\left(\pi(\cdot|s_t)\right)$ is the entropy of the stochastic policy at the current state. Entropy regularization is effectively a tradeoff between exploration and exploitation. Large temperature terms allow high randomness in the sampled action, while the opposite does not. \\ \\
+    %
+    The final form of the SAC is then similar to DDPG. It also relies on function approximations using deep neural networks for both actor $\pi_\phi(a|s)$ and critic $Q_\theta(s, a)$. Since we use a stochastic policy, the actor outputs both mean and diagonal covariance of a Gaussian. The critic loss is calculated as follows:
+    \begin{equation}
+        L(\theta_i, {\mathcal D}) = \underset{(s_t,a_t,r_t,s_{t+1},d) \sim {\mathcal D}}{\mathbb{E}}
+    \left( Q_{\theta_i}(s_t,a_t) - y(r_t,s_{t+1},d) \right)^2
+    \end{equation}
+    with ${\mathcal D}$ being the replay buffer. Expectations are approximated with Monte Carlo. $y$ denotes the target:
+    \begin{equation}
+        y(r_t,s_{t+1},d) = r_t + \gamma (1 - d) \left( \min_{i=1,2} Q_{\theta_{\text{target},i}}(s_{t+1}, \tilde{a}) - \alpha \log \pi_{\phi}(\tilde{a}|s_{t+1}) \right) \ \ \tilde{a} \sim \pi_{\phi}(\cdot|s_{t+1})
+    \end{equation}
+    At this point, another major difference to DDPG is obvious: SAC utilizes two critics and chooses the smaller one to avoid overestimation. $Q_{\theta_{\text{target},i}}$ refers to a slightly older version of the critic, to circumvent the semi-gradient problem, which introduces instability. These target networks are updated by Polyak averaging using both $Q_{\theta_i}$ and $Q_{\theta_{\text{target},i}}$. Next, the policy is optimized by maximizing the objective:
+    \begin{equation}
+                    J(\phi, {\mathcal D}) = 
+                    \underset{s \sim {\mathcal D}}{\mathbb{E}}
+                    \left(
+                    \min_{i=1,2} Q_{\theta_i}(s, \tilde{a}) - \alpha \log \pi_{\phi} (\tilde{a} |s)
+                    \right) \ \ \tilde{a} \sim \pi_{\phi}(\cdot|s)
+    \end{equation}
+    Note that the reparameterization trick is required to propagate gradients through the stochastic policy. \\ \\
+    %
+    An important aspect of SAC is the dynamic tuning of the temperature parameter, as constant values often result in instability. Typically, one aims for high exploration in the beginning and a steady shift towards high exploitation towards the end. To tune the temperature parameter, Haarnoja et al. \cite{sac_helper} suggest minimizing
+    \begin{equation}
+        J(\alpha) = \underset{a_t \sim \pi_\phi}{\mathbb{E}} (-\alpha \cdot [\log \pi_\phi(a_t |s_t) + \hat{H}])
+    \end{equation}
+    where $\hat{H}$ represents the target entropy. A common strategy is to set $\hat{H}$ to the negative dimension of the action space ($-\dim(\mathcal{A})$), which corresponds to $-4$ in the Hockey environment.
 \subsection{Quantile Critic}
-    Describe your non trivial modification
+    The Soft Actor-Critic although relying on the double Q-trick could still suffer from critic overestimation. A way to mitigate this is learning multiple critics, each outputting multiple quantiles. All quantiles are pooled together, and the highest ones are removed, effectively dropping the too optimistic values. Subsequently, all critics are optimized using a Quantile Huber Loss \cite{sac_loss}. When updating the policy, it uses the mean of all predicted quantiles to output a scalar. In literature, this technique is also described as Truncated Quantile Critic \cite{sac_quantile}.
 \subsection{Self-Play Strategy}
-    Describe your non trivial modification
-% \newpage
+    Self-play is motivated by the work of Vinyals et al. \cite{selfplay} and is based on sampling opponents weighted by their win rate. The strategy consists of two pools: \textbf{base opponents}, consisting of command line checkpoints, and a \textbf{self-play pool} that dynamically expands during training. Self-play begins with the warm-up phase, during which only agents from the base pool are sampled. Once the agent reaches a win rate of $80\%$, self-play is activated. During the self-play phase, a new agent is added to the pool if it consistently wins against all base opponents (80\% win rate) and reaches a win rate of 60\% against the newest self-play opponent. This enforces that only useful agents are added to the pool. The probability of sampling an opponent from the self-play pool is 60\%. Since the newest agent has the lowest win rate, it is sampled most often. When training is almost complete, the fine-tuning phase starts. At this point, the self-play pool is frozen, and no new agents are added. During this phase, the agent tries to optimize its policy on all agents from both pools to become a robust generalist.
 \subsection{Experiments}
 \subsubsection{Network Architecture and Normalization}
 Different hidden layer configurations for both actor and critic were explored, resulting in the final configuration 512-512-512.
 Note that higher capacity networks increase convergence speed and reduce the variance across random seeds (Fig.~\ref{fig:sac_net}).
-However, when training against the strong opponent, observation normalization is necessary to stabilize training (Fig.~\ref{fig:obs_norm}). \\ \\
-%
+However, when training against the strong opponent, observation normalization is necessary to stabilize training (Fig.~\ref{fig:obs_norm}).
+
 Training against the weak or the strong opponent takes 20 minutes and results in a win rate of > 99\%.
     \begin{figure}[H]
             \centering
             \begin{subfigure}[b]{0.48\textwidth}
                 \centering
-                \includegraphics[width=\textwidth]{simon/sac_paper_net_strong.pdf}
+                \includegraphics[width=\textwidth]{final-project/simon/sac_paper_net_strong.pdf}
                 \caption{}
                 \label{fig:sac_net}
             \end{subfigure}
             \begin{subfigure}[b]{0.48\textwidth}
                 \centering
-                \includegraphics[width=\textwidth]{simon/obs_norm_compar.pdf}
+                \includegraphics[width=\textwidth]{final-project/simon/obs_norm_compar.pdf}
                 \caption{}
                 \label{fig:obs_norm}
             \end{subfigure}
@@ -187,14 +128,16 @@ Training against the weak or the strong opponent takes 20 minutes and results in
 \subsubsection{Pink Noise}
 By default, the Soft Actor-Critic uses Gaussian noise to sample actions in the environment.
 This noise can be replaced by other noise processes, for example with Pink Noise \cite{pink_noise}.
-However, this consistently resulted in slightly reduced convergence speed during training and was therefore not considered further.
+However, this consistently resulted in slightly reduced convergence speed during training and was therefore not considered further. % TODO: add justification if space.
+\subsubsection{Parallel Environments}
+To improve sample efficiency, 8 parallel environments with different seeds were utilized. During training, a different opponent was sampled for each environment. Q-SAC always performed one update per 8 environment steps.
 \subsubsection{Quantile Critic and Self-Play}
 The Quantile-SAC converges slightly slower than the default SAC, but only when training against a single opponent with a fixed strategy (e.g., weak or strong).
 However, in a self-play setting involving a pool of opponents, the default SAC struggles to find a robust strategy.
-Q-SAC on the other hand, with a critic aware of the distribution proves beneficial and stabilizes the training.
+Q-SAC on the other hand, with a critic aware of the distribution, proves beneficial against overestimation and stabilizes the training.
 Notably, the Q-SAC finds a counter-strategy considerably faster.
 This allows it to reach the performance threshold required to add a new agent to the self-play pool sooner,
-resulting in more experience and therefore better performance in the same amount of time (Tab.~\ref{fig:ablation_table}).
+resulting in more experience and therefore better performance in the same amount of update steps (Tab.~\ref{fig:ablation_table}).
     \begin{figure}[H]
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
@@ -217,57 +160,420 @@ resulting in more experience and therefore better performance in the same amount
         \hfill
         \begin{subfigure}[b]{0.48\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{simon/obs_norm_compar.pdf}
+            \includegraphics[width=\textwidth]{final-project/simon/sac_20m_selfplay.pdf}
             \caption{}
             \label{fig:selfplay_training}
         \end{subfigure}
-        \caption{\textbf{Self-Play Ablation and Training Run.} \textbf{(a)} Win rates after 1M steps of self-play comparing Q-SAC and default SAC. \textbf{(b)} Training over 20M steps with Q-SAC.}
+        \caption{\textbf{Self-Play Ablation and Training Run.} \textbf{(a)} Win rates after 1M update steps of self play comparing Q-SAC and default SAC. \textbf{(b)} Self-play training over 20M steps with Q-SAC.}
         \label{fig:selfplay}
     \end{figure}
-The final agent used in the competition was trained over 20M steps. To ensure a challenging environment, the basic opponent pool contained checkpoints from team members and previous runs.
-During its journey to perfection, it accumulated over 170 opponents. To fully exploit this diversity, the pool was frozen at 19M steps. 
-This allowed the model to focus entirely on optimizing its policy against a static, yet diverse set of opponents. \\ \\
+The final agent used in the competition was trained over 20M steps. To ensure a challenging environment, the base opponent pool contained checkpoints from team members and previous runs. However, as shown in Fig.~\ref{fig:selfplay_training}, the self-play training collapsed shortly after $16.6$M update steps. This is most likely due to a drastic shift in strategy, resulting in frequent losses against many previous checkpoints, which subsequently increased their sampling probability. Since self-play is an incremental process by design, it is unable to find a strategy against many opponents at once. Consequently, the checkpoint at $16.6$M update steps was selected for the final tournament. This agent demonstrates robustness, achieving a win rate of over 95\% against both weak and strong opponents, 96\% against the base pool of 11 agents, and over 90\% against all 87 agents in the self-play pool.\\ \\
 %
-In the competition, the Q-SAC reached ... 
+In the competition, the Q-SAC reached place $1$ of $149$ agents, with an overall win rate of 73\%.
+%
+%
+%
+%TODO shorten it to 2 pages including images
+\newpage
+\section{N-PACT (N-step, Prioritized, Auxiliary, CEM, TQC)}
+
+% Done
+\subsection{Motivation and Architecture}
+The N-PACT Agent explores the synergy of combining several proven features: N-step returns, Prioritized Experience Replay, Auxiliary prediction, CEM planning, and Truncated Quantile Critics. While research generally favors simplicity, my intuition has always been that good features should compound. This combination resulted in an agent that was very robust to hyperparameters and even favored a lower UTD rate. The trade-off for this performance boost is that clean, isolated ablation comparisons become difficult, which is exactly why research usually prefers to focus on single features.
+To ensure the agent is able to learn a robust policy, N-PACT uses a $512 \times 512$ MLP with Mish activations \cite{mish}, this gives it an advantage over standard $256 \times 256$ networks and Mish prevents dead neurons over long trainings. To prevent the small 4-dimensional action vector from being overwhelmed by the 18-dimensional state features, actions are initially mapped to a higher dimension before being processed.
+This architecture placed 26th in the competition with 43\% win rate even with the opponent pool problems.\ref{niklas:reward_and_sp}
+\subsection{Algorithmic Features}
+
+%Done
+\subsubsection{Truncated Quantile Critics (TQC) and Quantile Cycling}
+The critic ensemble for the N-PACT agent uses two TQC critics \cite{tqc}, each outputting 20 quantiles. By default, the top 10\% of quantiles are dropped to mitigate overestimation bias. Modeling the full distribution of the state-action return, rather than just its expected value, allows the agent to better assess risk and handle the high variance in rewards, which is exactly what sparse rewards cause. The critic networks are updated by minimizing the Quantile Huber Loss:
+\begin{align}
+    \rho_\tau(u) &= |\tau - \mathbb{I}{u < 0}| \cdot \mathcal{L}{Huber}(u) \\
+    L_{TQC}(\theta) &= \mathbb{E}_{s,a,r,s'} \left[ \frac{1}{N} \sum_{i=1}^N \rho_{\tau_i} \left( y - Q_{\theta}(s,a)_{\tau_i} \right) \right]
+\end{align}
+Instead of a fixed 10\% quantile drop, N-PACT uses \textbf{Quantile Cycling}. The percentage of dropped upper quantiles cycles over a fixed interval of 400k steps. This serves as an alternative exploration and consolidation mechanism, allowing for optimistic and pessimistic game play which has the potential for breaking local optima where normal noise wouldn't as well as creating diverse self play checkpoints. This approach shares similarities with strategies like Thompson sampling \cite{mavrin2019distributional}, where specific optimistic quantiles are chosen over an episode to drive directed exploration.
+
+% Done
+\subsubsection{Prioritized Experience Replay (PER)}
+To maximize sample efficiency with a low UTD rate, N-PACT uses a PER buffer \cite{per}. Transitions are sampled based on the size of their TD error $\delta_i$. The sampling probability for a transition $i$ is defined as:
+\begin{equation}
+    P(i) = \frac{p_i^\alpha}{\sum_k p_k^\alpha}, \quad p_i = |\delta_i| + \epsilon
+\end{equation}
+where $\epsilon$ is a small constant guaranteeing non-zero sampling probabilities, and $\alpha$ controls the degree of prioritization. To correct for the induced sampling bias, importance-sampling weights are applied and scaled by $\beta$. For the N-PACT Agent, the standard parameters $\alpha=0.6$ and $\beta=0.4$ were used from the paper \cite{per}.
+
+%Done
+\subsubsection{Auxiliary State Prediction}
+To speed up early learning and improve the agent's understanding of hockey physics, an auxiliary prediction head regularizes the shared encoder by predicting the change in state $\Delta s$. This scales the overall network objective by a decaying coefficient $\lambda$:
+\begin{equation}
+    L_{total} = L_{TQC}(\theta) + \lambda \mathbb{E}_{s,a,s'} \left[ \| f_{aux}(s, a) - (s' - s) \|^2 \right]
+\end{equation}
+
+
+%Done
+\subsubsection{Update Ratios and N-Step Returns}
+To accelerate the backpropagation of delayed sparse rewards (such as goals), $n$-step returns are used within the PER buffer. Specifically, the agent utilizes a 3-step return, where the target is calculated as:
+\begin{equation}
+    R^{(n)}_t = \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n Q_{TQC}(s_{t+n}, \mu(s_{t+n}))
+\end{equation}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \vspace{-10pt} % Pulls the image up slightly to align with the text
+    \includegraphics[width=\linewidth]{final-project/niklas/UTD_runs.png}
+    \caption{The effect of different actor and critic update frequencies on learning speed. Reducing the update steps reduces wall clock time and maintains policy stability. (ActorLR = $7 \times 10^{-4}$, CriticLR = $3 \times 10^{-4}$)}
+    \label{fig:update_ratios}
+    \vspace{-10pt} % Reduces dead space below the figure
+\end{wrapfigure}
+where $Q_{TQC}$ represents the truncated quantile target estimate. 
+
+However, n-step returns can destabilize off-policy learning if the actor updates too aggressively. By tuning the Update-To-Data (UTD) ratio (Figure \ref{fig:update_ratios}), it became clear that performing only 2 critic updates and 1 actor update per 8 environment steps (UTD of 0.25) was actually overall better for convergence and wall clock time.\\
+Surprisingly, even with the actor learning rate of $7 \times 10^{-4}$ and higher UTD rates the agent stayed stable likely due to its robust architecture and Quantile Huber loss\\ 
+
+%Done
+\subsection{Reward Shaping, Self-Play, and Opponent Pool}\label{niklas:reward_and_sp}
+Early iterations of the agent suffered from over-aggression and strategic instability where the N-PACT Agent would chase the puck, abandoning its own goal, even when the puck was on the opponent's side. During training, the agent would often achieve an $80\%$ to $90\%$ win rate with self-play, but standard evaluation against the exact same opponents plateaued at a $\sim 50\%$ win ratio (resulting in an excess of draws, though barely any losses). This happened because of multiple problems: the optimistic exploration induced by Quantile Cycling, my own asymmetric custom reward (+20 for a win instead of +10, a bad idea that carried itself through the whole development) that mathematically incentivized the agent to accept two losses just to secure one win, erratic movement, and a badly balanced self-play opponent pool.
+
+To fix these issues, two penalty terms were added to the reward function:\\
+\textbf{Action Smoothness Penalty:} An $L_1$ loss applied to rapid consecutive action changes. This stabilized the agent's movement while still permitting sharp, intentional turns.\\
+\textbf{Goal Anchor:} A negative reward that triggers when the agent drifts from its defensive zone while the puck is far away. This drastically improved the agent's defensive posture and prevented reckless chasing.
+
+However, the self-play evaluation gap and overall instability were fundamentally tied to the unnecessarily complex opponent pool, where opponents were sampled based on their win rate against the current agent, on top of that was a slow probability "creep" to revisit older policies, and a "spiking" mechanism that forcefully injected a sequentially chosen historical opponent every 50k steps to stop catastrophic forgetting. 
+While this seemed to work initially, the training environment it created was simply too aggressive and chaotic, causing the pool to ultimately collapse to uniform sampling after 4 million steps. In retrospect, this complex pool was the primary cause of the final tournament N-PACT agent's skill ceiling. Although spiking and weighted sampling are theoretically sound ideas. A simpler pool, more in line with my teammate Simon's approach, which avoided forcing advanced opponents onto an unprepared agent, would have been better and would have likely created a stabler and higher-performing policy.
+
+%TODO 
+\subsubsection{Cross-Entropy Method (CEM) with Selective Planning or Forced Annealed Planning}
+Normal action noise often struggles to discover complex strategies and gets stuck in local optima. To improve this, N-PACT uses directed exploration via CEM combined with an Upper Confidence Bound (UCB) bonus. This allows for either a reward-seeking planner or a high-variance planner, accelerating "critic mapping" and overall learning. The agent uses 32 trajectory samples, 3 iterations, and 10 elites per planning step, along with an exploration/UCB bonus of 0.5. This provides a safe mix between reward exploitation and high-variance state seeking.
+
+To prevent policy collapse caused by over-reliance on narrow learned planner paths, two methods were compared: \textbf{Forced Annealed Planning} (blind decay schedule) and \textbf{Selective Planning} (adaptive schedule).
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{final-project/niklas/PlaningDivergence.png}
+        \caption{Action Divergence}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{final-project/niklas/PlaningRate.png}
+        \caption{Intervention Rate}
+    \end{subfigure}
+    \caption{A comparison between Forced Annealed Planning (n\% forced intervention) and Selective Planning (std. threshold intervention) over time. The charts illustrate action divergence between planner and actor (a) and intervention frequency (b).}
+    \label{fig:cem_planning}
+\end{figure}
+
+As shown in Figure \ref{fig:cem_planning}, Selective Planning provides a much more robust transition. Instead of a fixed decay, the CEM planner only overrides the actor when the critic ensemble has high epistemic uncertainty (Q-value std. is above the threshold). This allows the planner to automatically deactivate as the critics agree and the actor masters the policy. It dynamically reactivates in new, uncertain states, providing help exactly when needed throughout the entire training. Figure \ref{fig:cem_planning} suggests a Q-value std. threshold above 3.0 is good, closely mimicking the intervention curve of the proven Forced Annealing method, which was ultimately used in the final N-PACT agent to guarantee stability. The ideal hyperparameter for Selective planning should eventually let it converge to a very low planning rate which only spikes when needed due to time constraints, this was not found but might yield a very robust agent.
+
+% \subsection{Competition Performance}
+% Ultimately, navigating these architectural and training challenges allowed N-PACT to develop a highly robust, generalized strategy. In the final course tournament, the agent successfully secured \textbf{[X]th place}, demonstrating the viability of integrating heavy architectural augmentations with strict curriculum constraints in continuous control tasks.
+%
+%
+%
+%
+%
+%
+%
+%
+%
 %
 %
 \newpage
 \section{MBPO + SAC}\label{sec:MBPO_SAC}
-    Even with the very simple environment of the hockey game, we can try to improve sample efficiency further with a combination of a Soft-Actor-Critic (SAC) agent with model based policy optimization (MBPO). The SAC consists of multiple neural networks: \begin{enumerate}
+    Even with the very simple environment of the hockey game, we can try to improve sample efficiency further with a combination of a Soft-Actor-Critic (SAC) agent with model based policy optimization (MBPO). The SAC consists of some multi-layer-perceptrons (MLP): \begin{enumerate}
         \item Policy Network (Actor) $\pi_\theta(a \mid s)$ \\
-            For learning the actual policy we use a neural network with Gaussian policy and tanh squashing. Given the current observation, we receive the action of our agent.
+            For learning the actual policy, we use a neural network with Gaussian policy and tanh squashing. Given the current observation, the action is calculated.
             \begin{align}
                 \mathcal{L}_\pi = \mathbb{E}\left[\alpha \cdot log(\pi(a \mid s)) - min_i(Q_i(s,a))\right]
             \end{align}
         \item Q-Networks (Two Critics) $Q_1$ and $Q_2$ \\
-            Two independent neural networks are used for estimating the soft action-value function $Q(s,a)$. By the principle of double Q-learning, we can reduce overestimation bias and provide gradients to train the policy.
+            Two independent MLPs are used for estimating action-value function $Q(s,a)$. By using the minimum of both estimates, overestimation bias is reduced and the gradients to train the policy are smoothed out. Together with the soft-updates, this slows down the learning process but improves overall stability.
             \begin{align}
                 y &= r + \gamma \left(min_i (Q_{target, i})(s',a') - \alpha \cdot log(\pi(a' \mid s'))\right) \\
                 \mathcal{L}_{Q_i} &= \mathbb{E}\left[(Q_i(s,a) - y)^2\right]
             \end{align}
         \item Entropy temperature $\alpha$ \\
-            To balance between maximizing reward and encouraging exploration, another network is used that learns and adapts a scalable parameter for the desired policy entropy $\mathcal{H}_{target}$ (Hyperparameter = $-dim(a)$ \cite{haarnoja2019softactorcriticalgorithmsapplications}).
+            To balance between maximizing reward and encouraging exploration, a separate optimizer is used to adapt a scalable parameter $\alpha$ for the desired policy entropy $\mathcal{H}_{target}$ \cite{haarnoja2019softactorcriticalgorithmsapplications}).
             \begin{align}
-                \mathcal{L}_\alpha = \mathbb{E}\left[- log(\alpha \cdot (log(\pi(a \mid s) + \mathcal{H}_target) )) \right]
+                \mathcal{L}_\alpha = \mathbb{E}\left[- log(\alpha \cdot (log(\pi(a \mid s) + \mathcal{H}_{target}) )) \right]
             \end{align}
     \end{enumerate} 
-    This alone already learns the behavior of the game and training opponents quite well. To improve the learning process and also introduce some stochastic variety, this SAC Agent is wrapped by the MBPO construct using \begin{enumerate}
-        \item A dynamic world model \\
-            By trying to learn how the world steps based on an observation and an action, we create this feedforward neural network. This gives us an approximation of the expected next state and reward for any given combination of state and action $(s,a) \rightarrow (\hat{s}',\hat{r})$. By using this, we can generate more transitions without stepping the actual environment and exploring actions safely. By chaining the generated states, we can also estimate more into the future with increasing uncertainty.
+    This already learns the behavior of the game and training opponents quite well. To improve the learning process and also introduce some stochastic variety, this SAC Agent is wrapped by the MBPO construct using \begin{enumerate}
+        \item Dynamic world-model \\
+            An MLP that is trying to learn how the world steps based on an observation and an action. It gives an approximation of the expected next state for any given combination of state and action $(s,a) \rightarrow \hat{s}'$. Using this, we can generate more transitions without stepping the actual environment and exploring actions safely and more effectively. By chaining the generated states, we can also estimate more into the future with increasing uncertainty.
             \begin{align}
-                \mathcal{L}_{worldmodel} = \mathbb{E}\left[ mse(\hat{s}',s') + \lambda \cdot mse(\hat{r},r)\right]
+                \mathcal{L}_{world} &= \mathbb{E}\left[ mse(\hat{s}',s') \right]
             \end{align}
-        \item A replay buffer \\
-            To train the world model continuously and keep using some real world data for the SAC training, the experienced transitions $(s,a,r,s',d)$ are stored in a buffer. Training data can now be generated by using random samples from this buffer and extending them with imagined next states from the world model.
+        \item Dynamic reward-model \\
+            Analog to the world model, the expected reward system from any given state $s \rightarrow \hat{r}$. In combination with the estimated next state, we can estimate the reward without invoking the environment itself. 
+            \begin{align}
+                \mathcal{L}_{reward} &= \mathbb{E}\left[ mse(\hat{r},r) \right] \\
+            \end{align}
     \end{enumerate}
+    To train the world model continuously and keep using some real world data for the SAC training, the experienced transitions $(s,a,r,s',d)$ are stored in a buffer. Training data can now be generated by using random samples from this buffer and extending them with imagined next states and rewards. To prevent throwing off the SAC with random states at the start, the rollout chain of the world-model is increased slowly over time, starting with zero for train until two steps ahead. 
+
+\subsection{Behavioral analysis}
+    Some development milestones of the agent are clearly reflecting in the rewards \ref{fig:mbpo+sac_rewards} and losses \ref{fig:mbpo+sac_metrics}. The initial behavior of moving toward the puck marks the first relevant point of the learning process, learning the necessary control to decrease immediate punishment. Basic behaviors like moving close to the puck and shooting towards the opponent's side are established. This most likely causes the rapid reward increase at the start, where the agent first distances from random actions and first steady incline. 
+
+    \begin{wrapfigure}{r}{0.5\textwidth}
+        \vspace{-0.5cm}
+        \centering
+        \includegraphics[width=\linewidth]{final-project/fabian/plot_reward.png}
+        \caption{MBPO+SAC rewards over time}
+        \label{fig:mbpo+sac_rewards}
+    \end{wrapfigure}
+
+    The first part of the training steps show a steady increase of the actor-policy loss, while the q-critics loss stays very low \ref{fig:mbpo+sac_sac_losses}. The policy seems to be pushed towards high-value actions and discouraged from noisy and weak actions, which in turn creates the higher loss. This aligns with the process of learning consistent and strong movement, instead of cancelling itself out with random value distributions. The introduction of not fully precise one-step predictions after the world loss \ref{fig:mbpo+sac_mbpo_losses} falls below the threshold can be expected to be one cause of the increasing roughness in policy loss, as the actions no longer consistently match the targeted reality. 
+
+    An important tipping point is reached in the time between 1300k and 1700k where the policy loss \ref{fig:mbpo+sac_sac_losses} declines and the reward itself stops increasing for a while. This is a sign of a learned behavior that is able to enact a strategy that mostly avoids the consistent immediate punishment. This can be seen in the reward as the tipping point from negative to positive in the mean reward. The agent can no longer increase the reward by improving simple movement and instead has to develop long ranged strategy for higher rewards, which leads to the most significant event.
+
+    After around 1700k steps, a sudden and huge spike appears in the q-critics \ref{fig:mbpo+sac_sac_losses} and the reward model \ref{fig:mbpo+sac_mbpo_losses}, while the policy loss starts decreasing. Only a small spike can be seen in the world model accuracy. This hints at a strong development in the behavioral strategy of the policy, that does significantly change the reward. The previous estimates are thrown off, while the actual world change is still somewhat accurate. The world model seems to have learned the simulated physics well enough to only be thrown off a little by previously unseen events. The q-critics suddenly have a strong change in their target, which requires them to first adapt to this new gameplay style. Observing the gameplay gives reason to the assumption, that the agent learned to estimate puck behavior, as the agent now moves to where the puck will go instead of directly at it and have higher accuracy in shooting indirect goals.
+
+    \begin{figure}[H]
+        \vspace{-0.25cm}
+        \begin{subfigure}[t]{0.5\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{final-project/fabian/plot_sac.png}
+            \caption{SAC metrics}
+            \label{fig:mbpo+sac_sac_losses}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.5\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{final-project/fabian/plot_mbpo.png}
+            \caption{MBPO metrics}
+            \label{fig:mbpo+sac_mbpo_losses}
+        \end{subfigure}
+        \caption{Training metrics}
+        \label{fig:mbpo+sac_metrics}
+    \end{figure}        
 
 
 \newpage
-\section{Comparison}
-Write something here
+\section{Comparison and Conclusion}
+As visualized in Tab. \ref{tab:head_to_head} all team agents are able to defeat weak and strong with a win rate over 92\%, fulfilling the course requirements. The performance comparison between team agents requires a big disclaimer: while SAC and N-PACT agents only trained on older and weaker checkpoints of each other, this is not the case for the MBPO agent. It was used by SAC and N-PACT in training, making the MBPO scores below nothing more than a proof, for being able to beat opponent pool agents reliably. \\
+\begin{table}[H]
+    \centering
+    % \renewcommand{\arraystretch}{1.3} 
+    \begin{tabular}{lccccc}
+        \toprule
+        Agent & Q-SAC & N-PACT & MBPO-SAC & Strong & Weak \\
+        \midrule
+        Q-SAC & 46.0 / 8.0 / 46.0 & 65.3 / 5.5 / 29.2 & 78.3 / 0.1 / 21.6 & 97.5 / 0.8 / 1.8 & 96.8 / 1.1 / 2.2 \\
+        N-PACT & 29.2 / 5.5 / 65.3 & 41.3 / 17.4 / 41.3 & 98.2 / 0.0 / 1.8 & 98.4 / 0.8 / 0.8 & 97.9 / 1.2 / 0.8 \\
+        MBPO-SAC & 21.6 / 0.1 / 78.3 & 1.8 / 0.0 / 98.2 & 49.9 / 0.1 / 49.9 & 92.2 / 1.4 / 6.4 & 99.1 / 0.2 / 0.6 \\
+        \bottomrule
+    \end{tabular}
+    %}
+    \caption{Internal Tournament with overall win, draw, and loss rates of team and base agents, after 20,000 games per pair. SAC and N-PACT were trained on the tournament checkpoint of MBPO-SAC.}
+    \label{tab:head_to_head}
+\end{table}
 
+We also report the tournament results:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l c c}
+        \toprule
+        Agent & Score $\mu - 3\sigma$ & Rank \\
+        \midrule
+        Q-SAC & 46.67 & 1 \\
+        N-PACT & 32.74 & 26 \\
+        MBPO-SAC & 25.26 & 52\\
+        \bottomrule
+    \end{tabular}
+    \caption{Final course competition results showing the TrueSkill \cite{10.7551/mitpress/7503.003.0076} ratings and overall leaderboard placements out of 149 submissions.}
+    \label{tab:global_rankings}
+\end{table}
+
+We conclude that: First, quantile critics are highly effective for avoiding critic overestimation. Second, while architectural complexity can speed up early learning and create robust agents, a stable opponent pool with self play seems to yield better results. \\
+\\
+Q-SAC's reaching first-place demonstrates that a simpler, stable self-play pool leads to superior generalization, whereas N-PACT and MBPO-SAC were ultimately limited by pool collapse or long-term world-model inaccuracies and overfitting. Future work could involve unifying these approaches leveraging MBPO for early sample efficiency and transition to a Q-SAC architecture with N-PACT's selective planning to navigate a highly controlled, stable self-play curriculum.\\
+\\
+The code and checkpoints are available on GitHub.\footnote{\url{https://github.com/DerSimi/swabian-olympics}}
 \newpage
 \bibliographystyle{abbrv}
-\bibliography{main}
+\bibliography{final-project/main}
+
+%Appendix
+\newpage
+\appendix
+\section{AI Usage}
+\subsection{General}
+The python framework, shared by all agents, offering abstractions, training, self play and checkpoint functionality, is human written, but for small details like nice printouts with rich or a colorful log, we used AI. \\ \\ 
+visualize\_compr.py is a script for visualizing game plays downloaded from the competition server, is completely written by AI. As a prompt, we uploaded the hockey environment and the .pkl 
+file from the website, and asked it to generate a small script. \\ \\
+visualize\_gameplay.py visualizes the game play between two checkpoints, completely AI written. Copilot did this, and it used the framework as input. The code was not optimal, and needed a bit of tweaking afterward.  \\ \\
+Most of the setup scripts, for installing the environment or setting up sbatch on the cluster, are completely AI written.
+\subsection{Simon}
+AI was mainly used for finding functions in APIs, for example in Gymnasium, NumPy or PyTorch. Navigating the wandb API and downloading my run data from wandb was completely handled by AI. I also used AI for plot generation, but always by specifying exactly what I needed. For example, I asked it to generate a plot with a 95\% confidence interval. It then suggested seaborn.
+%
+\subsection{Niklas}
+In addition to finding functions in libraries as described above, AI was used to find papers and to break down the concepts in them, in a back and forth conversation to see if I understood the contents correctly so that I could implement them. It was also used in the beginning to brainstorm which features to use in the agent and to guess which features might work well together and what issues might arise. 
+
+\subsection{Fabian}
+AI was used to create parts of the plotting scripts to get the desired styling and formatting. 
+
+\section{Hyperparameters}
+\subsection{Q-SAC}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{l|c}
+            \toprule
+            Hyperparameter & Value \\
+            \midrule
+            \multicolumn{2}{c}{\textbf{Learning Rates}} \\
+            \midrule
+            Policy learning rate & $3 \times 10^{-4}$ \\
+            Critic learning rate & $3 \times 10^{-4}$ \\
+            $\alpha$ learning rate & $3 \times 10^{-4}$ \\
+            \midrule
+            \multicolumn{2}{c}{\textbf{Network Architectures}} \\
+            \midrule
+            Policy hidden layers & 512-512-512 \\
+            Critic hidden layers & 512-512-512 \\
+            \midrule
+            \multicolumn{2}{c}{\textbf{General}} \\
+            \midrule
+            Parallel Environments & 8 \\
+            Updates & 1 for 8 env. steps \\
+            Learning starts & 5,000 \\
+            Buffer size & 1,000,000 \\
+            Batch size & 256 \\
+            $\gamma$ (Discount) & 0.99 \\
+            Target entropy & -4 \\
+            $\tau$ (Polyak factor) & 0.005 \\
+            Normalize observations & Yes \\
+            \midrule
+            \multicolumn{2}{c}{\textbf{Quantile Critic}} \\
+            \midrule
+            Number of critics & 5 \\
+            Number of quantiles & 25 \\
+            Top drop & 2 \\
+            \midrule
+            \multicolumn{2}{c}{\textbf{Self-Play}} \\
+            \midrule
+            Check start & 100,000 \\
+            Check interval & 100,000 \\
+            Threshold & 0.80 \\
+            Continue threshold & 0.60 \\
+            Max agents & 200 \\
+            Fine-tuning & 0.95 \\
+            \bottomrule
+        \end{tabular}
+        \label{tab:hyperparameters}
+    \end{table}
+    
+\subsection{N-PACT}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l|c}
+        \toprule
+        Hyperparameter & Value \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{Learning Rates}} \\
+        \midrule
+        Actor learning rate & $7 \times 10^{-4}$ \\
+        Actor updates per 8 env. steps & 1\\
+        Critic learning rate & $3 \times 10^{-4}$ \\
+        Critic updates per 8 env. steps & 2\\
+        \midrule
+        \multicolumn{2}{c}{\textbf{Network Architectures}} \\
+        \midrule
+        Shared Encoder & 512 \\
+        Actor hidden layers & 512-512 \\
+        Critic hidden layers & 512-512 \\
+        Activation function & Mish \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{General}} \\
+        \midrule
+        Critic learning starts & 25,000 steps \\
+        Buffer size & 1,000,000 \\
+        Batch size & 256 \\
+        Mirrored Data & Yes\\
+        True Batch size & 512\\
+        $\gamma$ (Discount) & 0.99 \\
+        $n$-step returns & 3 \\
+        $\tau$ (Polyak factor) & 0.005 \\
+        Normalize observations & Yes \\
+        Action noise & Pink (0.1 scale) \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{Prioritized Experience Replay}} \\
+        \midrule
+        $\alpha$ (Prioritization) & 0.6 \\
+        $\beta$ (Importance-sampling) & 0.4 \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{Truncated Quantile Critic (TQC)}} \\
+        \midrule
+        Number of critics & 2 \\
+        Number of quantiles & 20 \\
+        Quantile drop range & 0\% -- 10\% \\
+        Quantile cycling interval & 400,000 steps \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:npact_hyperparameters}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l|c}
+        \toprule
+        Hyperparameter & Value \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{Auxiliary Prediction Unit}} \\
+        \midrule
+        $\lambda$ (Start $\rightarrow$ End) & 5.0 $\rightarrow$ 0.5 \\
+        Decay steps & 250,000 steps \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{CEM Planning}} \\
+        \midrule
+        CEM Samples & 32 \\
+        CEM Iterations & 3 \\
+        CEM Elites & 10 \\
+        Intervention threshold (Start $\rightarrow$ End)& 0.5 $\rightarrow$ 0.0 \\
+        Intervention decay steps & 500,000 steps \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{Self-Play Curriculum}} \\
+        \midrule
+        Snapshot interval & 500,000 steps \\
+        Opponent pool type & Safe Weighted \\
+        Max pool size & 100 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:npact_hyperparameters}
+\end{table}
+
+\subsection{MBPO-SAC}
+    \begin{table}[H]
+            \centering
+            \begin{tabular}{l|c}
+                \toprule
+                Hyperparameter & Value \\
+                \midrule
+                \multicolumn{2}{c}{\textbf{Learning Rates}} \\
+                \midrule
+                Policy learning rate & $3 \times 10^{-4}$ \\
+                Critics learning rate & $3 \times 10^{-4}$ \\
+                $\alpha$ learning rate & $3 \times 10^{-3}$ \\
+                World model learning rate & $2 \times 10^{-5}$ \\
+                \midrule
+                \multicolumn{2}{c}{\textbf{Network Architectures}} \\
+                \midrule
+                Policy hidden layers & 256-256 \\
+                Critics hidden layers & 256-256 \\
+                World model hidden layers & 256-256 \\
+                \midrule
+                \multicolumn{2}{c}{\textbf{General}} \\
+                \midrule
+                Prediction rollout horizon & 0-2 \\
+                Update batch size & 64 \\
+                Learning starts & 5,000 \\
+                Buffer size & 500,000 \\
+                Sample batch size & 256 \\
+                $\gamma$ & 0.99 \\
+                Target entropy & -4 \\
+                $\tau$ & 0.005 \\
+                \bottomrule
+            \end{tabular}
+            \label{tab:mbpo_sac_hyperparameters}
+        \end{table}
 
 \end{document}

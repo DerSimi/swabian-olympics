@@ -1,10 +1,10 @@
-# Introduction
+% Introduction
 @article{alphago,title	= {Mastering the game of Go with deep neural networks and tree search},author	= {David Silver and Aja Huang and Christopher J. Maddison and Arthur Guez and Laurent Sifre and George van den Driessche and Julian Schrittwieser and Ioannis Antonoglou and Veda Panneershelvam and Marc Lanctot and Sander Dieleman and Dominik Grewe and John Nham and Nal Kalchbrenner and Ilya Sutskever and Timothy Lillicrap and Madeleine Leach and Koray Kavukcuoglu and Thore Graepel and Demis Hassabis},year	= {2016},URL	= {http://www.nature.com/nature/journal/v529/n7587/full/nature16961.html},journal	= {Nature},pages	= {484--503},volume	= {529}}
 
-# Niklas
+% Niklas
 @InProceedings{fujimoto2018:TD3, title = {Addressing Function Approximation Error in Actor-Critic Methods}, author = {Fujimoto, Scott and van Hoof, Herke and Meger, David}, booktitle = {Proceedings of the 35th International Conference on Machine Learning}, pages = {1587--1596}, year = {2018}, editor = {Jennifer Dy and Andreas Krause}, volume = {80}, series = {Proceedings of Machine Learning Research}, address = {Stockholmsmässan, Stockholm Sweden}, month = {10--15 Jul}, publisher = {PMLR}, pdf = {http://proceedings.mlr.press/v80/fujimoto18a/fujimoto18a.pdf}, url = {http://proceedings.mlr.press/v80/fujimoto18a.html}, abstract = {In value-based reinforcement learning methods such as deep Q-learning, function approximation errors are known to lead to overestimated value estimates and suboptimal policies. We show that this problem persists in an actor-critic setting and propose novel mechanisms to minimize its effects on both the actor and the critic. Our algorithm builds on Double Q-learning, by taking the minimum value between a pair of critics to limit overestimation. We draw the connection between target networks and overestimation bias, and suggest delaying policy updates to reduce per-update error and further improve performance. We evaluate our method on the suite of OpenAI gym tasks, outperforming the state of the art in every environment tested.} }
 
-# Simon
+% Simon
 @misc{sac_main,
       title={Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor}, 
       author={Tuomas Haarnoja and Aurick Zhou and Pieter Abbeel and Sergey Levine},
@@ -23,6 +23,26 @@
       archivePrefix={arXiv},
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/1812.05905}, 
+}
+
+@misc{sac_loss,
+      title={Distributional Reinforcement Learning with Quantile Regression}, 
+      author={Will Dabney and Mark Rowland and Marc G. Bellemare and Rémi Munos},
+      year={2017},
+      eprint={1710.10044},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/1710.10044}, 
+}
+
+@misc{ddpg,
+      title={Continuous control with deep reinforcement learning}, 
+      author={Timothy P. Lillicrap and Jonathan J. Hunt and Alexander Pritzel and Nicolas Heess and Tom Erez and Yuval Tassa and David Silver and Daan Wierstra},
+      year={2019},
+      eprint={1509.02971},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/1509.02971}, 
 }
 
 @misc{sac_quantile,
@@ -50,7 +70,18 @@
     year = {2018}
 }
 
-# Fabian
+@article{selfplay,
+author = {Vinyals, Oriol and Babuschkin, Igor and Czarnecki, Wojciech and Mathieu, Michaël and Dudzik, Andrew and Chung, Junyoung and Choi, David and Powell, Richard and Ewalds, Timo and Georgiev, Petko and Oh, Junhyuk and Horgan, Dan and Kroiss, Manuel and Danihelka, Ivo and Huang, Aja and Sifre, Laurent and Cai, Trevor and Agapiou, John and Jaderberg, Max},
+year = {2019},
+month = {10},
+pages = {350-354},
+title = {Grandmaster level in StarCraft II using multi-agent reinforcement learning},
+volume = {575},
+journal = {Nature},
+doi = {10.1038/s41586-019-1724-z}
+}
+
+% Fabian
 @InProceedings{HaarnojaAbbeelLevine2018:SAC,
   title = 	 {Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor},
   author = 	 {Haarnoja, Tuomas and Zhou, Aurick and Abbeel, Pieter and Levine, Sergey},
@@ -77,6 +108,67 @@
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/1812.05905}, 
 }
+@incollection{10.7551/mitpress/7503.003.0076,
+    author = {Herbrich, Ralf and Minka, Tom and Graepel, Thore},
+    isbn = {9780262256919},
+    title = {TrueSkill™: A Bayesian Skill Rating System},
+    booktitle = {Advances in Neural Information Processing Systems 19: Proceedings of the 2006 Conference},
+    publisher = {The MIT Press},
+    year = {2007},
+    month = {09},
+    doi = {10.7551/mitpress/7503.003.0076},
+    url = {https://doi.org/10.7551/mitpress/7503.003.0076},
+    eprint = {https://direct.mit.edu/book/chapter-pdf/2288966/9780262256919_ccs.pdf},
+}
+% Conclusion
+% ?
 
-# Conclusion
-# ?
+
+
+%================================ Niklas Bib
+@inproceedings{tqc,
+  title={Controlling Overestimation Bias with Truncated Mixture of Continuous Distributional Quantile Critics},
+  author={Kuznetsov, Arsenii and Shvechikov, Pavel and Grishin, Alexander and Vetrov, Dmitry},
+  booktitle={International Conference on Machine Learning},
+  pages={5556--5566},
+  year={2020},
+  organization={PMLR}
+}
+
+@article{cem,
+  title={The cross-entropy method for combinatorial and continuous optimization},
+  author={Rubinstein, Reuven},
+  journal={Methodology and computing in applied probability},
+  volume={1},
+  number={2},
+  pages={127--190},
+  year={1999},
+  publisher={Springer}
+}
+
+@inproceedings{selfplay_bansal,
+  title={Emergent complexity via multi-agent competition},
+  author={Bansal, Trapit and Pachocki, Jakub and Sidor, Szymon and Sutskever, Ilya and Mordatch, Igor},
+  booktitle={International Conference on Learning Representations},
+  year={2018}
+}
+@article{per,
+  title={Prioritized experience replay},
+  author={Schaul, Tom and Quan, John and Antonoglou, Ioannis and Silver, David},
+  journal={arXiv preprint arXiv:1511.05952},
+  year={2015}
+}
+@article{mish,
+  title={Mish: A self regularized non-monotonic activation function},
+  author={Misra, Diganta},
+  journal={arXiv preprint arXiv:1908.08681},
+  year={2019}
+}
+@inproceedings{mavrin2019distributional,
+  title={Distributional reinforcement learning for efficient exploration},
+  author={Mavrin, Borislav and Shang, Hengshuai and Babes-Vroman, Cosmin and Balram, Ali and Jiao, Dan and Roberts, Adam},
+  booktitle={International Conference on Machine Learning},
+  pages={4424--4434},
+  year={2019},
+  organization={PMLR}
+}
