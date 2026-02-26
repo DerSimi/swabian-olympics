@@ -35,19 +35,19 @@ Quickly look in the `checkpoints` folder and check for the name, then you can pl
 just insert strong):
 
 ```zsh
-python src/visualize_gameplay.py -a1 crossplay.niklas@td_universal -a2 weak -r 100 --headless
+python src/visualize_gameplay.py -a1 niklas@td_universal -a2 weak -r 100 --headless
 ```
 
 or with out activating the python environment:
 
 ```zsh
-uv run src/visualize_gameplay.py -a1 crossplay.niklas@td_universal -a2 weak -r 100 --headless
+uv run src/visualize_gameplay.py -a1 niklas@td_universal -a2 weak -r 100 --headless
 ```
 
 Instead of the point (.) in the checkpoints folder, just insert @  `[checkpoint name]@[algorithm name]`.
 
 ```zsh
-crossplay.niklas.td_universal -> crossplay.niklas@td_universal
+niklas.td_universal -> niklas@td_universal
 ```
 
 The `headless` argument indicates no visualizations.
@@ -57,7 +57,7 @@ The `headless` argument indicates no visualizations.
 This is fairly simple, for example:
 
 ```zsh
-python src/visualize_gameplay.py -a1 crossplay.niklas@td_universal -a2 crossplay.simon@sac -r 100 --headless
+python src/visualize_gameplay.py -a1 niklas@td_universal -a2 simon@sac -r 100 --headless
 ```
 
 ### Start Training
