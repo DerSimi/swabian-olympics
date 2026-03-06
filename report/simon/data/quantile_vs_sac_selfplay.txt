@@ -1,0 +1,15 @@
+sp_quantile:                avg
+weak        100 100 100     100 
+strong      98  97  100     98.3
+checkpoints 9   10  9       
+
+sp_sac:                     avg
+weak        99  95  99      97.6
+strong      85  81  76      80.6
+checkpoints 5   3   5
+
+win rate against sp_sac     avg
+87 50 56 52 98 91 49 97 98  75.33
+
+lose rate against sp_sac    avg
+13 50 44 48 2 9 51 3 2      24.67

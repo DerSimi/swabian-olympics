@@ -1,0 +1,46 @@
+[project]
+name = "rl"
+version = "0.1.0"
+description = "rocm dependencies"
+readme = "README.md"
+requires-python = "==3.11.*"
+dependencies = [
+    "ipykernel>=7.1.0",
+    "matplotlib>=3.10.7",
+    "numpy>=2.3.4",
+    "seaborn>=0.13.2",
+    "hockey",
+    "pink-noise-rl",
+    "wandb>=0.24.0",
+    "coloredlogs>=15.0.1",
+    "rich>=14.3.1",
+    "comprl",
+    "python-dotenv>=1.2.1",
+    "numba",
+    "torchcfm>=1.0.7",
+    "stable-baselines3>=2.7.1",
+    "pandas>=2.3.3",
+    "opencv-python>=4.13.0.92",
+    "moviepy>=2.2.1",
+]
+
+[project.optional-dependencies]
+rocm = ["torch", "torchvision"]
+
+[tool.uv]
+prerelease = "allow"
+override-dependencies = [
+    "torch==2.5.1+rocm6.2",
+    "torchvision==0.20.1+rocm6.2",
+]
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm6.2"
+
+[tool.uv.sources]
+torch = { index = "pytorch-rocm" }
+torchvision = { index = "pytorch-rocm" }
+hockey = { path = "./hockey-env", editable = true }
+pink-noise-rl = { path = "./pink-noise-rl", editable = true }
+comprl = { git = "https://github.com/martius-lab/teamproject-competition-server.git", subdirectory = "comprl" }
