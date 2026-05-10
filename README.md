@@ -8,5 +8,5 @@ This repository contains the code for the Laser Hockey Tournament of the Univers
 # Team Members
 - Simon Rappenecker (Rank 1)
 - Niklas Ehrenfried (Rank 26)
-- Niklas Ehrenfried (Rank 52)
+- Fabian Holzwarth (Rank 52)
 
